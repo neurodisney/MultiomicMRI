@@ -1,0 +1,13 @@
+# Ignore any folders:
+UsefulRepos/
+Software Documentation/
+NMT_v2.0_sym_05mm/
+NMT_v2.0_sym/
+NMT_v2.0_asym/
+Findings/
+Deprecated/
+CIVET-Macaque/
+Bonnie/
+BONNIE/
+
+
