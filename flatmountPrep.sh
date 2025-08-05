@@ -1,4 +1,5 @@
-#!bin/bash
+#!/bin/bash
+set -euo pipefail # Exit on error, unset variable, or error in pipeline
 
 # flatmountPrep.sh prepares multiple T1-weighted scans for cortical surface reconstruction 
 # and flatmount generation in FreeSurfer. Toolkits from FSL, FreeSurfer, AFNI are all used and should be installed. 
@@ -39,8 +40,10 @@ NMT_path=${startpath}/${Template} # NMT 0.5mm used in this project to avoid voxe
 
 
 cd ${startpath}/${SUBJ}/T1s # change to T1s directory
-numScans=find . -maxdepth 1 -type f | wc -l # get number of scans
-scans=($(pwd)/*.nii) # make list of scans
+numScans=$(find . -maxdepth 1 -type f -name "*.nii" | wc -l) # get number of scans
+scans=(*.nii) # make list of scans
+
+echo "Number of scans found: $numScans" # Optional: print number of scans found
 
 fslmaths "${scans[0]}" temp_sum # make temp variable to compute on
 
@@ -59,9 +62,14 @@ rm temp_sum.nii.gz # clean up temp file
 # The coordinates will then be used to crop the image similarly to what is seen in the NMT
 # allowing for @animal_warper's processes to most effectively capture the subject brain.
 
-echo "Averaging of T1s complete. Inspect Image to acquire coordinates for cropping." # Prompt user to inspect the averaged image
-read -p "Ready to continue? Enter cropping coordinates as: Xmin Xmax Ymin Ymax Zmin Zmax > " # Wait for user input
+echo "Averaging of T1s complete. Inspect Image to acquire coordinates/dimensions for cropping." # Prompt user to inspect the averaged image
+echo "Use FSLeyes to obtain the minimum of each dimension value, and then calculate the length by subtracting the minimum from the max value that encompasses the brain." # Provide instructions for obtaining coordinates
+read -p "Ready to continue? Enter cropping coordinates as: Xmin Xlength Ymin Ylength Zmin Zlength > " # Wait for user input
 coords=($REPLY) # Read user input into an array
+if [ "${#coords[@]}" -ne 6 ]; then
+  echo "Error: You must enter exactly 6 coordinates."
+  exit 1
+fi
 
 # crop image to similar FOV as that of the NMT or other template. Takes 'coords' variable
 fslroi ${SUBJ}_avg.nii.gz ${SUBJ}_avg_crop.nii.gz ${coords[0]} ${coords[1]} ${coords[2]} ${coords[3]} ${coords[4]} ${coords[5]}
@@ -70,7 +78,7 @@ fslmaths ${SUBJ}_avg_crop.nii.gz -inm 355 ${SUBJ}_avg_crop_norm.nii.gz # 355 is 
 
 echo "Image cropping and normalization done. Check FOV now if you'd like. Next step: @animal_warper." # Prompt user that cropping and normalization is complete
 # provies an opportunity to check the cropped and normalized image.
-read -p "Ready to continue? Press Enter to run @animal_warper." # Wait for user input
+read -p "Ready to continue? Press Enter to run @animal_warper. This will take a while." # Wait for user input
 
 ######################@ANIMAL_WARPER########################
 # Run @animal_warper on cropped/normalized image. In this case, settings coded below 
@@ -84,7 +92,7 @@ cd ${startpath}
 mkdir -p "${NMT_path}/single_subject_scans/${SUBJ}/AW"
 # run @animal_warper
 @animal_warper \
-    -input ${SUBJ}_avg_crop_norm.nii.gz \
+    -input ${SUBJ}/T1s/${SUBJ}_avg_crop_norm.nii.gz \
     -base "${NMT_path}/${Template}.nii.gz" \
     -outdir "${NMT_path}"/single_subject_scans/${SUBJ}/AW/ \
     -skullstrip "${NMT_path}/${Template}_brainmask.nii.gz" \
