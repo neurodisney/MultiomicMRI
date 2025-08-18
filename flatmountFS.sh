@@ -30,10 +30,10 @@ cd ${NMT_path}/single_subject_scans/{$SUBJ}/AW/
 
 # On the copied segmentation file, create separate masks for each segmented category
 # WM, GM, CSF, etc.
-fslmaths SEG_in_${SUBJ}_ITK.nii.gz -thr 0.9 -uthr 1.1 -bin ${SUBJ}_CSF.nii.gz
-fslmaths SEG_in_${SUBJ}_ITK.nii.gz -thr 1.9 -uthr 2.1 -bin ${SUBJ}_GM.nii.gz
-fslmaths SEG_in_${SUBJ}_ITK.nii.gz -thr 2.9 -uthr 4.1 -bin ${SUBJ}_WM.nii.gz
-fslmaths SEG_in_${SUBJ}_ITK.nii.gz -thr 0.5 -uthr 4.1 -bin ${SUBJ}_brainmask.nii.gz
+fslmaths SEG_in_${SUBJ}_ITK2.nii.gz -thr 0.9 -uthr 1.1 -bin ${SUBJ}_CSF.nii.gz # <<< note the "2" here. Moving forward this needs to be defined as a variable name. It's only a 2 in this case because I had to go back and do more edits. would be best to not have this issue.
+fslmaths SEG_in_${SUBJ}_ITK2.nii.gz -thr 1.9 -uthr 2.1 -bin ${SUBJ}_GM.nii.gz
+fslmaths SEG_in_${SUBJ}_ITK2.nii.gz -thr 2.9 -uthr 4.1 -bin ${SUBJ}_WM.nii.gz
+fslmaths SEG_in_${SUBJ}_ITK2.nii.gz -thr 0.5 -uthr 4.1 -bin ${SUBJ}_brainmask.nii.gz
 
 # create folder for freesurfer output
 mkdir -p fsSurf 
