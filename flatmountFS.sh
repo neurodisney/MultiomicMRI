@@ -24,9 +24,8 @@ startpath=$(pwd) # current working directory
 Template=NMT_v2.0_sym_05mm # Variable specifying the template name (folder containing the template should also have this name. This is how it is downloaded from AFNI)
 NMT_path=${startpath}/${Template} # NMT 0.5mm used in this project to avoid voxel resampling
 
-
 #travel to directory holding the segmented "in subject" scans
-cd ${NMT_path}/single_subject_scans/{$SUBJ}/AW/
+cd ${NMT_path}/single_subject_scans/${SUBJ}/AW/
 
 # On the copied segmentation file, create separate masks for each segmented category
 # WM, GM, CSF, etc.
@@ -53,20 +52,20 @@ mkdir fsSurf/src/org
 cp fsSurf/src/*.nii.gz fsSurf/src/org/
 
 # change headers for faking the 1mm voxel dimensions
-3drefit -xdel 1.0 -ydel 1.0 -zdel 1.0 -keepcen fsSurf/src/T1.nii.gz &
-3drefit -xdel 1.0 -ydel 1.0 -zdel 1.0 -keepcen fsSurf/src/brain.nii.gz &
-3drefit -xdel 1.0 -ydel 1.0 -zdel 1.0 -keepcen fsSurf/src/brainmask.nii.gz &
-3drefit -xdel 1.0 -ydel 1.0 -zdel 1.0 -keepcen fsSurf/src/wm.nii.gz &
+3drefit -xdel 1.0 -ydel 1.0 -zdel 1.0 -keepcen fsSurf/src/T1.nii.gz
+3drefit -xdel 1.0 -ydel 1.0 -zdel 1.0 -keepcen fsSurf/src/brain.nii.gz
+3drefit -xdel 1.0 -ydel 1.0 -zdel 1.0 -keepcen fsSurf/src/brainmask.nii.gz
+3drefit -xdel 1.0 -ydel 1.0 -zdel 1.0 -keepcen fsSurf/src/wm.nii.gz
 
 #convert to .mgz format for freesurfer and place in the mgz folder
-mri_convert -c fsSurf/src/T1.nii.gz fsSurf/mgz/T1.mgz &
-mri_convert -c fsSurf/src/brain.nii.gz fsSurf/mgz/brain.mgz &
-mri_convert -c fsSurf/src/brain.nii.gz fsSurf/mgz/brainmask.mgz &
-mri_convert -c fsSurf/src/brainmask.nii.gz fsSurf/mgz/brainmask_binary.mgz &
-mri_convert -c fsSurf/src/wm.nii.gz fsSurf/mgz/wm.mgz &
+mri_convert -c fsSurf/src/T1.nii.gz fsSurf/mgz/T1.mgz
+mri_convert -c fsSurf/src/brain.nii.gz fsSurf/mgz/brain.mgz
+mri_convert -c fsSurf/src/brain.nii.gz fsSurf/mgz/brainmask.mgz
+mri_convert -c fsSurf/src/brainmask.nii.gz fsSurf/mgz/brainmask_binary.mgz
+mri_convert -c fsSurf/src/wm.nii.gz fsSurf/mgz/wm.mgz
 
 # create brain.finalsurfs.mgz
-mri_mask -T 5 fsSurf/mgz/brain.mgz fsSurf/mgz/brainmask.mgz fsSurf/mgz/brain.finalsurfs.mgz &
+mri_mask -T 5 fsSurf/mgz/brain.mgz fsSurf/mgz/brainmask.mgz fsSurf/mgz/brain.finalsurfs.mgz 
 
 # Inspect volume, get coordinates for corpus callosum and pons
 freeview -v fsSurf/mgz/brain.mgz &
@@ -83,7 +82,6 @@ mri_fill -CV ${CC[0]} ${CC[1]} ${CC[2]} \
 
 # copy original white matter before applying fixes
 cp fsSurf/mgz/wm.mgz fsSurf/mgz/wm_nofix.mgz
-
 
 # Tesselate
 # left hemisphere
